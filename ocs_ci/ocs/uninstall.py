@@ -5,11 +5,9 @@ from ocs_ci.ocs.exceptions import CommandFailed
 from ocs_ci.ocs.machine import get_labeled_nodes
 from ocs_ci.ocs.node import get_all_nodes
 from ocs_ci.ocs.ocp import switch_to_project
-from ocs_ci.ocs.resources.pod import get_all_pods
 from ocs_ci.ocs.resources.pvc import get_all_pvcs_in_storageclass, get_all_pvcs
 from ocs_ci.ocs.resources.storage_cluster import get_all_storageclass
 from ocs_ci.utility.localstorage import check_local_volume
-from tests.helpers import get_worker_nodes
 
 log = logging.getLogger(__name__)
 
@@ -226,102 +224,5 @@ def uninstall_ocs():
         node_obj = ocp.OCP(kind=constants.NODE, resource_name=node)
         node_obj.add_label(resource_name=node, label=constants.OPERATOR_NODE_LABEL[:-3] + '-')
         node_obj.add_label(resource_name=node, label=constants.TOPOLOGY_ROOK_LABEL + '-')
-
-    log.info("OCS was removed successfully from cluster ")
-
-
-def uninstall_ocs45():
-    ocp_obj = ocp.OCP()
-    provisioners = constants.OCS_PROVISIONERS
-
-    # List the storage classes
-    sc_list = [sc for sc in get_all_storageclass() if sc.get('provisioner') in provisioners]
-
-    # Query for PVCs and OBCs that are using the storage class provisioners listed in the previous step.
-    pvc_to_delete = []
-    for sc in sc_list:
-        pvc_to_delete.extend(pvc for pvc in get_all_pvcs_in_storageclass(
-            sc.get('metadata').get('name')) if 'noobaa' not in pvc.name
-        )
-
-    log.info("Removing monitoring stack from OpenShift Container Storage")
-    remove_monitoring_stack_from_ocs()
-
-    log.info("Removing OpenShift Container Platform registry from OpenShift Container Storage")
-    remove_ocp_registry_from_ocs(config.ENV_DATA['platform'])
-
-    log.info("Removing the cluster logging operator from OpenShift Container Storage")
-    try:
-        remove_cluster_logging_operator_from_ocs()
-    except CommandFailed:
-        log.info("No cluster logging found")
-
-    # Follow these instructions to ensure that the PVCs listed in the previous step are deleted.
-    log.info("Deleting pvcs")
-    for pvc in pvc_to_delete:
-        log.info(f"Deleting pvc: {pvc.name}")
-        pvc.delete()
-
-    storage_cluster = ocp.OCP(
-        kind=constants.STORAGECLUSTER,
-        resource_name=constants.DEFAULT_CLUSTERNAME,
-        namespace='openshift-storage'
-    )
-    # List the backing local volume objects. If there are no results, skip step 8.
-    log.info("Checking for local storage")
-    lso_sc = None
-    if check_local_volume():
-        "Local volume was found. Will be removed later"
-        lso_sc = storage_cluster.get().get('spec').get('storageDeviceSets')[0].get(
-            'dataPVCTemplate').get('spec').get('storageClassName')
-
-    # Label the StorageCluster to configure the cleanup policy.
-    storage_cluster.add_label(resource_name=constants.DEFAULT_CLUSTERNAME, label=constants.OCS_CLEANUP_LABEL)
-
-    # Delete the StorageCluster object and wait for the removal of the associated resources.
-    log.info("Deleting storageCluster object")
-    storage_cluster.delete(resource_name=constants.DEFAULT_CLUSTERNAME)
-
-    # Ensure that the resulting cleanup jobs are completed and all the nodes are cleaned up.
-    clenup_pods = [pod for pod in get_all_pods() if "cluster-cleanup-job" in pod.name]
-    if len(clenup_pods) != len(get_worker_nodes()):
-        log.error("cleanup pods weren't created")
-    for pod in clenup_pods:
-        if pod.status() != constants.STATUS_COMPLETED:
-            log.error("cleanup pods are not completed")
-
-    # Delete the namespace and wait till the deletion is complete.
-    log.info("Deleting openshift-storage namespace")
-    ocp_obj.delete_project('openshift-storage')
-    ocp_obj.wait_for_delete('openshift-storage')
-    switch_to_project("default")
-
-    # Delete the local volume created during the deployment and repeat for each of the local volumes listed in step 3.
-    log.info("Removing LSO ")
-    if lso_sc is not None:
-        uninstall_lso(lso_sc)
-
-    # Delete the openshift-storage.noobaa.io storage class.
-    ocp.OCP(kind=constants.STORAGECLASS).delete(resource_name=constants.NOOBAA_SC)
-
-    # Unlabel the storage nodes.
-    log.info("Unlabeling storage nodes")
-    nodes_list = get_all_nodes()
-    for node in nodes_list:
-        node_obj = ocp.OCP(kind=constants.NODE, resource_name=node)
-        node_obj.add_label(resource_name=node, label=constants.OPERATOR_NODE_LABEL[:-3] + '-')
-        node_obj.add_label(resource_name=node, label=constants.TOPOLOGY_ROOK_LABEL + '-')
-
-    # Confirm all PVs are deleted. If there is any PV left in the Released state, delete it.
-
-    # Remove CustomResourceDefinitions
-    log.info("Removing CRDs")
-    crd_list = ['backingstores.noobaa.io', 'bucketclasses.noobaa.io', 'cephblockpools.ceph.rook.io',
-                'cephfilesystems.ceph.rook.io', 'cephnfses.ceph.rook.io',
-                'cephobjectstores.ceph.rook.io', 'cephobjectstoreusers.ceph.rook.io', 'noobaas.noobaa.io',
-                'ocsinitializations.ocs.openshift.io', 'storageclusterinitializations.ocs.openshift.io',
-                'storageclusters.ocs.openshift.io', 'cephclusters.ceph.rook.io']
-    for crd in crd_list:
-        ocp_obj.exec_oc_cmd(f"delete crd {crd} --timeout=300m")
 
     log.info("OCS was removed successfully from cluster ")
