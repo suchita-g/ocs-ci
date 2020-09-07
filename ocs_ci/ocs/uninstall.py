@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 def remove_monitoring_stack_from_ocs():
     """
     Function removes monitoring stack from OCS
+
     """
     monitoring_obj = ocp.OCP(
         namespace=constants.MONITORING_NAMESPACE, kind='ConfigMap',
@@ -30,8 +31,10 @@ def remove_monitoring_stack_from_ocs():
 def remove_ocp_registry_from_ocs(platform):
     """
     Function removes OCS registry from OCP cluster
+
     Args:
         platform (str): the platform the cluster deployed on
+
     """
     image_registry_obj = ocp.OCP(
         kind=constants.IMAGE_REGISTRY_CONFIG, namespace=constants.OPENSHIFT_IMAGE_REGISTRY_NAMESPACE
@@ -55,6 +58,7 @@ def remove_ocp_registry_from_ocs(platform):
 def remove_cluster_logging_operator_from_ocs():
     """
     Function removes cluster logging operator from OCS
+
     """
     # Deleting the clusterlogging instance
     clusterlogging_obj = ocp.OCP(
@@ -74,6 +78,7 @@ def remove_cluster_logging_operator_from_ocs():
 def uninstall_lso(lso_sc):
     """
     Function uninstalls local-volume objects from OCS cluster
+
     """
     ocp_obj = ocp.OCP()
 
@@ -141,6 +146,7 @@ def uninstall_ocs():
     """
     The function uninstalls the OCS operator from a openshift
     cluster and removes all its settings and dependencies
+
     """
     ocp_obj = ocp.OCP()
     provisioners = constants.OCS_PROVISIONERS
