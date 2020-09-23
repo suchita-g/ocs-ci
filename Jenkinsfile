@@ -118,6 +118,12 @@ pipeline {
     }
     failure {
       script {
+        sh """
+          source ./venv/bin/activate
+          pip install must-triage
+          cd logs
+          must-triage -q -o json ./failed_testcase_ocs_logs_* > must-triage.json || true
+        """
         if ( LAST_STAGE != "Acceptance Tests" ) {
           emailext (
             subject: "Job '${env.JOB_NAME}' build #${env.BUILD_ID} failed during stage '${LAST_STAGE}'",
