@@ -1674,10 +1674,32 @@ class AZURENodes(NodesBase):
             "Stop nodes functionality is not implemented"
         )
 
-    def start_nodes(self, nodes):
-        raise NotImplementedError(
-            "Start nodes functionality is not implemented"
-        )
+    def start_nodes(self, nodes, timeout=540, wait=True):
+        """Start Azure vm instances
+
+        Args:
+            nodes (list): The OCS objects of the nodes / Azure Vm instance
+            wait (bool): True for waiting the instances to start, False otherwise
+            timeout (int): time in seconds to wait for node to reach 'ready' state.
+        """
+        if not nodes:
+            logger.error("No nodes found to start")
+            raise ValueError
+        node_names = [n.name for n in nodes]
+        for node_name in node_names:
+            self.azure.start_az_vm_instance(node_name)
+        if wait:
+            """
+            When the node is reachable then 
+            the node reaches status Ready.
+            """
+            logger.info(
+                f"Waiting for nodes: {node_names} to reach ready state"
+            )
+            wait_for_nodes_status(
+                node_names=node_names, status=constants.NODE_READY,
+                timeout=timeout
+            )
 
     def restart_nodes(self, nodes, timeout=540, wait=True):
         """
