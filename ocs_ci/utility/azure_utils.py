@@ -313,3 +313,25 @@ class AZURE:
         return self.compute_client.disks.get(
             self.cluster_resource_group, volume_name
         ).disk_state
+
+    def stop_vm_instance(self, vm_name):
+        """
+        Stop an Azure vm instance
+        Args:
+            vm_name: Name of azure vm instance
+        """
+        result = self.compute_client.virtual_machines.power_off(
+            self.cluster_resource_group, vm_name
+        )
+        result.wait()
+
+    def start_vm_instance(self, vm_name):
+        """
+        Start an Azure vm instance
+        Args:
+            vm_name: Name of azure vm instance
+        """
+        result = self.compute_client.virtual_machines.start(
+            self.cluster_resource_group, vm_name
+        )
+        result.wait()
