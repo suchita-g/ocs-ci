@@ -5,7 +5,6 @@ import re
 import shutil
 import time
 
-
 import boto3
 import yaml
 
@@ -1786,6 +1785,33 @@ class AZURENodes(NodesBase):
     def restart_nodes_by_stop_and_start_teardown(self, timeout=600, wait=True):
         """
         Make sure all vm instances are up. To be used in the test teardown
+        """
+
+        # if not self.cluster_nodes:
+        #     raise ValueError("No nodes found for restarting")
+        # TODO:
+        # 1. get status of Azure Vms
+        # 2. If VM is stooping  state wait till timeout to stop
+        # 3. Start stooped VMs
+
+        # For now try to start all vm using not ready status input of OCS
+        # nodes instead of Azure VM status
+        try:
+            self.cluster_nodes = get_node_objs()
+            if not self.cluster_nodes:
+                logger.info("No nodes found to restart in teardown")
+            logger.info(f"type:{type(self.cluster_nodes)}, nodes:{self.cluster_nodes}")
+
+            self.azure.start_vm_instance(
+                [n.name for n in self.cluster_nodes], timeout=timeout, wait=wait
+            )
+        except Exception as e:
+            logger.info(f"ignoring errors in restart teradown methods. Error{e}")
+
+    def restart_nodes_by_stop_and_start_teardown(self, timeout=600, wait=True):
+        """
+        Make sure all vm instances are up. To be used in the test teardown
+
         """
 
         # if not self.cluster_nodes:
