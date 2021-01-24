@@ -1804,7 +1804,9 @@ class AZURENodes(NodesBase):
                 node_names=node_names, status=constants.NODE_READY, timeout=timeout
             )
 
-    def restart_nodes_by_stop_and_start(self, nodes, timeout=540, wait=True):
+    def restart_nodes_by_stop_and_start(
+        self, nodes, timeout=540, wait=True, force=False
+    ):
         """
         Restart Azure vm instances by stop and start
 
@@ -1814,6 +1816,9 @@ class AZURENodes(NodesBase):
                 READY state. False otherwise
             timeout (int): time in seconds to wait for node to reach 'not ready' state,
                 and 'ready' state.
+            force (bool): True value for this flag indicates non-graceful shutdown
+                whereas false indicates otherwise
+                # TODO force: Dummy for now Pending force implementation
 
         """
         if not nodes:
@@ -1827,7 +1832,7 @@ class AZURENodes(NodesBase):
 
         """
         self.cluster_nodes = get_node_objs()
-        vms = self.get_vm_names()
+        vms = self.azure.get_vm_names()
         assert (
             vms
         ), f"Failed to get VM objects for nodes {[n.name for n in self.cluster_nodes]}"
