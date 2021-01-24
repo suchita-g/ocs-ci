@@ -1821,6 +1821,29 @@ class AZURENodes(NodesBase):
         self.stop_nodes(nodes, timeout=timeout, wait=wait)
         self.start_nodes(nodes, timeout=timeout, wait=wait)
 
+    def restart_nodes_by_stop_and_start_teardown(self):
+        """
+        Make sure all VM instances up by the end of the test
+
+        """
+        self.cluster_nodes = get_node_objs()
+        vms = self.get_vm_names()
+        assert (
+            vms
+        ), f"Failed to get VM objects for nodes {[n.name for n in self.cluster_nodes]}"
+        # TODO: IF node status is not ready and vm status is running then
+        # Stop and Start VM
+        stopped_vms = [
+            vm
+            for vm in vms
+            if self.azure.get_vm_power_status(vm) == constants.VM_STOPPED
+            or self.azure.get_vm_power_status(vm) == constants.VM_STOPPING
+        ]
+        # Start the VMs
+        if stopped_vms:
+            logger.info(f"The following VMs are powered off: {stopped_vms}")
+            self.azure.start_vm_instance(stopped_vm for stopped_vm in stopped_vms)
+
     def get_data_volumes(self):
         """
         Get the data Azure disk objects
