@@ -9,7 +9,6 @@ from ocs_ci.framework.testlib import libtest
 from ocs_ci.ocs import constants
 from ocs_ci.framework.pytest_customization.marks import azure_platform_required
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -56,3 +55,20 @@ def test_check_cluster_existence():
     assert not azure_depl.check_cluster_existence("an_invalid_clustername000")
     assert azure_depl.check_cluster_existence(azure_depl.cluster_name)
     assert azure_depl.check_cluster_existence(azure_depl.cluster_name[:5])
+
+
+@libtest
+@azure_platform_required
+def test_get_vm_names():
+    """
+    Simple test of Azure check_cluster_existence() method implementation.
+    Invalid clustername should be evaluated as False, while current cluster
+    name should result in True (obviously current cluster name exists).
+    """
+    azure_depl = AZUREIPI()
+    vm_name = azure_depl.azure_util.get_vm_names()
+    logger.info(f"vm names are: {vm_name}")
+    master_vms = [master_vm for master_vm in vm_name if "master" in master_vm]
+    assert len(master_vms) >= 3
+    worker_vms = [worker_vm for worker_vm in vm_name if "worker" in worker_vm]
+    assert len(worker_vms) >= 3
