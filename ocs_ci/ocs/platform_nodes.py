@@ -1832,6 +1832,7 @@ class AZURENodes(NodesBase):
 
         """
         self.cluster_nodes = get_node_objs()
+        logger.info(f"Get the vm names")
         vms = self.azure.get_vm_names()
         assert (
             vms
