@@ -222,7 +222,7 @@ class AZURE:
 
     def get_vm_power_status(self, vm_name):
         """
-        Get the running status of VM
+        Get the power status of VM
 
         Args:
            vm_name (str): Azure VM name
