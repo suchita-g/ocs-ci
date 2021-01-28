@@ -1721,7 +1721,7 @@ class AZURENodes(NodesBase):
         super(AZURENodes, self).__init__()
         self.azure = azure_utils.AZURE()
 
-    def stop_nodes(self, nodes, timeout=540, wait=True):
+    def stop_nodes(self, nodes, timeout=540, wait=True, force=True):
         """
         Stop Azure vm instances
 
@@ -1735,8 +1735,7 @@ class AZURENodes(NodesBase):
             raise ValueError("No nodes found to stop")
 
         node_names = [n.name for n in nodes]
-        for node_name in node_names:
-            self.azure.stop_vm_instance(node_name)
+        self.azure.stop_vm_instances(node_names, force=force)
         if wait:
             # When the node is not reachable then the node reaches status NotReady.
             logger.info(f"Waiting for nodes: {node_names} to reach not ready state")
@@ -1757,8 +1756,7 @@ class AZURENodes(NodesBase):
         if not nodes:
             raise ValueError("No nodes found to start")
         node_names = [n.name for n in nodes]
-        for node_name in node_names:
-            self.azure.start_vm_instance(node_name)
+        self.azure.start_vm_instances(node_names)
         if wait:
             # When the node is reachable then the node reaches status Ready.
             logger.info(f"Waiting for nodes: {node_names} to reach ready state")
@@ -1782,8 +1780,7 @@ class AZURENodes(NodesBase):
             logger.error("No nodes found for restarting")
             raise ValueError
         node_names = [n.name for n in nodes]
-        for node_name in node_names:
-            self.azure.restart_az_vm_instance(node_name)
+        self.azure.restart_vm_instances(node_names)
 
         if wait:
             """
@@ -1804,7 +1801,9 @@ class AZURENodes(NodesBase):
                 node_names=node_names, status=constants.NODE_READY, timeout=timeout
             )
 
-    def restart_nodes_by_stop_and_start(self, nodes, timeout=540, wait=True):
+    def restart_nodes_by_stop_and_start(
+        self, nodes, timeout=540, wait=True, force=True
+    ):
         """
         Restart Azure vm instances by stop and start
 
@@ -1814,12 +1813,20 @@ class AZURENodes(NodesBase):
                 READY state. False otherwise
             timeout (int): time in seconds to wait for node to reach 'not ready' state,
                 and 'ready' state.
+            force (bool): True for force VM stop, False otherwise
 
         """
         if not nodes:
             raise ValueError("No nodes found for restarting")
-        self.stop_nodes(nodes, timeout=timeout, wait=wait)
+        node_names = [n.name for n in nodes]
         self.start_nodes(nodes, timeout=timeout, wait=wait)
+        self.azure.restart_vm_instances_by_stop_and_start(node_names, force=force)
+
+        if wait:
+            logger.info(f"Waiting for nodes: {node_names} to reach ready state")
+            wait_for_nodes_status(
+                node_names=node_names, status=constants.NODE_READY, timeout=timeout
+            )
 
     def get_data_volumes(self):
         """
@@ -1927,7 +1934,7 @@ class AZURENodes(NodesBase):
         # Start the VMs
         if stopped_vms:
             logger.info(f"The following VMs are powered off: {stopped_vms}")
-            self.azure.start_vm_instance(stopped_vm for stopped_vm in stopped_vms)
+            self.azure.start_vm_instances(stopped_vms)
 
 
 class VMWareLSONodes(VMWareNodes):
