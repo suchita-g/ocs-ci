@@ -2299,10 +2299,10 @@ class RHVNodes(NodesBase):
                 node_names=node_names, status=constants.NODE_READY, timeout=timeout
             )
 
-        def restart_nodes_by_stop_and_start_teardown(self):
-            """
-            Make sure all RHV VMs are up by the end of the test
-            """
+    def restart_nodes_by_stop_and_start_teardown(self):
+        """
+        Make sure all RHV VMs are up by the end of the test
+        """
 
         vms = self.rhv.get_vm_names()
         assert vms, f"Failed to get VM list"

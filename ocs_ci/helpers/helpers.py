@@ -3026,3 +3026,26 @@ def run_cmd_verify_cli_output(
         if expected_output not in out:
             return False
     return True
+
+
+def select_unique_pvcs(pvcs):
+    """
+    Get the PVCs with unique access mode and volume mode combination.
+
+    Args:
+        pvcs(list): List of PVC objects
+
+    Returns:
+        list: List of selected PVC objects
+    """
+    pvc_dict = {}
+    for pvc_obj in pvcs:
+        pvc_data = pvc_obj.get()
+        access_mode_volume_mode = (
+            pvc_data["spec"]["accessModes"][0],
+            pvc_data["spec"].get("volumeMode"),
+        )
+        pvc_dict[access_mode_volume_mode] = pvc_dict.get(
+            access_mode_volume_mode, pvc_obj
+        )
+    return pvc_dict.values()

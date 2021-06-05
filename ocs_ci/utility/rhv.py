@@ -191,6 +191,14 @@ class RHV(object):
         )
         return vms
 
+    def get_vm_names(self):
+        """
+        Returns:
+            list: list of VMs name
+
+        """
+        return [vm.name for vm in self.get_vms_by_pattern(filter_by_cluster_name=True)]
+
     def get_disks_by_pattern(
         self, pattern=None, case_sensitive=True, key="name", filter_by_cluster_name=True
     ):
