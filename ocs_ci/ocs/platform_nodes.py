@@ -59,6 +59,7 @@ from ocs_ci.ocs.node import wait_for_nodes_status
 from ocs_ci.utility.vsphere_nodes import VSPHERENode
 from paramiko.ssh_exception import NoValidConnectionsError, AuthenticationException
 from semantic_version import Version
+from ovirtsdk4.types import VmStatus
 
 logger = logging.getLogger(__name__)
 
@@ -2247,3 +2248,72 @@ class RHVNodes(NodesBase):
             wait_for_nodes_status(
                 node_names=node_names, status=constants.NODE_READY, timeout=timeout
             )
+
+    def restart_nodes(self, nodes, timeout=900, wait=True, force=True):
+        """
+        Restart RHV VM
+
+        Args:
+            nodes (list): The OCS objects of the nodes
+            timeout (int): time in seconds to wait for node to reach 'ready' state
+            wait (bool): True if need to wait till the restarted node reaches
+                READY state. False otherwise
+            force (bool): True for force VM reboot, False otherwise
+
+        """
+        if not nodes:
+            raise ValueError("No nodes found for restarting")
+        vms = self.get_rhv_vm_instances(nodes)
+        node_names = [n.name for n in nodes]
+        self.rhv.reboot_rhv_vms(vms, timeout=timeout, wait=wait, force=force)
+
+        if wait:
+            # When the node is reachable then the node reaches status Ready.
+            logger.info(f"Waiting for nodes: {node_names} to reach ready state")
+            wait_for_nodes_status(
+                node_names=node_names, status=constants.NODE_READY, timeout=timeout
+            )
+
+    def restart_nodes_by_stop_and_start(
+        self, nodes, timeout=900, wait=True, force=True
+    ):
+        """
+        Restart RHV vms by stop and start
+        Args:
+            nodes (list): The OCS objects of the nodes
+            wait (bool): True if need to wait till the restarted node reaches
+                READY state. False otherwise
+            timeout (int): time in seconds to wait for node to reach 'not ready' state,
+                and 'ready' state.
+            force (bool): True for force VM stop, False otherwise
+        """
+        if not nodes:
+            raise ValueError("No nodes found for restarting")
+        node_names = [n.name for n in nodes]
+        vms = self.get_rhv_vm_instances(nodes)
+        self.rhv.restart_rhv_vms_by_stop_and_start(vms, wait=wait, force=force)
+
+        if wait:
+            logger.info(f"Waiting for nodes: {node_names} to reach ready state")
+            wait_for_nodes_status(
+                node_names=node_names, status=constants.NODE_READY, timeout=timeout
+            )
+
+        def restart_nodes_by_stop_and_start_teardown(self):
+            """
+            Make sure all RHV VMs are up by the end of the test
+            """
+
+        vms = self.rhv.get_vm_names()
+        assert vms, f"Failed to get VM list"
+
+        stopped_vms = [
+            vm
+            for vm in vms
+            if self.rhv.get_vm_status(vm) == VmStatus.DOWN
+            or self.rhv.get_vm_status(vm) == VmStatus.POWERING_DOWN
+        ]
+        # Start the VMs
+        if stopped_vms:
+            logger.info(f"The following VMs are powered off: {stopped_vms}")
+            self.rhv.start_rhv_vms(stopped_vms)

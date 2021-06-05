@@ -68,3 +68,20 @@ def test_p_stop_and_start():
     rhv_plfrm.start_nodes(node)
     status = rhv_plfrm.rhv.get_vm_status(vm_obj)
     assert "up" == str(status), f"Status of {vm_name} is {status}"
+
+
+@libtest
+@rhv_platform_required
+def test_restart_by_stop_and_start():
+    """
+    Test of RHV restart_nodes_by_stop_and_start method implementation
+    """
+    rhv_plfrm = RHVNodes()
+    nodes = get_node_objs()
+    logger.info(f"nodes are: {nodes}")
+    node = [nodes[4]]
+    rhv_plfrm.restart_nodes_by_stop_and_start(node)
+    vm_name = node[0].get().get("metadata").get("name")
+    vm_obj = rhv_plfrm.rhv.get_rhv_vm_instance(vm_name)
+    status = rhv_plfrm.rhv.get_vm_status(vm_obj)
+    assert "up" == str(status), f"Status of {vm_name} is {status}"
