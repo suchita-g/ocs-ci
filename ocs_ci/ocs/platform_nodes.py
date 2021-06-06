@@ -8,6 +8,7 @@ import time
 
 import boto3
 import yaml
+import ovirtsdk4.types as types
 
 from ocs_ci.deployment.terraform import Terraform
 from ocs_ci.deployment.vmware import (
@@ -2304,15 +2305,26 @@ class RHVNodes(NodesBase):
         Make sure all RHV VMs are up by the end of the test
         """
 
-        vms = self.rhv.get_vm_names()
-        assert vms, f"Failed to get VM list"
+        vm_names = self.rhv.get_vm_names()
+        assert vm_names, f"Failed to get VM list"
+        vms = [self.rhv.get_rhv_vm_instance(vm) for vm in vm_names]
 
-        stopped_vms = [
-            vm
-            for vm in vms
-            if self.rhv.get_vm_status(vm) == VmStatus.DOWN
-            or self.rhv.get_vm_status(vm) == VmStatus.POWERING_DOWN
+        stopping_vms = [
+            vm for vm in vms if self.rhv.get_vm_status(vm) == VmStatus.POWERING_DOWN
         ]
+        for vm in stopping_vms:
+            # wait untill VM with powering down status changed to down status
+            for status in TimeoutSampler(600, 5, self.rhv.get_vm_status, vm):
+                logger.info(
+                    f"Waiting for RHV Machine {vm.name} to shutdown "
+                    f"Current status is : {status}"
+                )
+                if status == types.VmStatus.DOWN:
+                    logger.info(f"RHV Machine {vm.name} reached down status")
+                    break
+        # Get all down Vms
+        stopped_vms = [vm for vm in vms if self.rhv.get_vm_status(vm) == VmStatus.DOWN]
+
         # Start the VMs
         if stopped_vms:
             logger.info(f"The following VMs are powered off: {stopped_vms}")

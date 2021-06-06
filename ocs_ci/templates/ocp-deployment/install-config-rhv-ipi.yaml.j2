@@ -7,8 +7,8 @@ compute:
   platform:
     ovirt:
       cpu:
-        cores: {{ worker_num_cpus | default(4) }}
-        sockets: 1
+        cores: 8
+        sockets: 2
       memoryMB: {{ compute_memory | default(16348) }}
       osDisk:
         sizeGB: 120

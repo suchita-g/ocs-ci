@@ -13,6 +13,28 @@ logger = logging.getLogger(__name__)
 
 @libtest
 @rhv_platform_required
+def test_get_vm_names():
+    """
+    Test of RHV get_vm_names() method implementation
+    """
+    rhv_plfrm = RHVNodes()
+    vms = rhv_plfrm.rhv.get_vm_names()
+    logger.info(f"vm names are: {vms}")
+    assert len(vms) >= 6
+
+
+@libtest
+@rhv_platform_required
+def test_p_restart_nodes_by_stop_and_start_teardown():
+    """
+    Test platforn nodes method restart_nodes_by_stop_and_start_teardown() implementation
+    """
+    rhv_plfrm = RHVNodes()
+    rhv_plfrm.restart_nodes_by_stop_and_start_teardown()
+
+
+@libtest
+@rhv_platform_required
 def test_get_vm_status():
     """
     Test of RHV get_vm_status() method implementation
