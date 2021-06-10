@@ -494,7 +494,7 @@ class RHV(object):
             # Find the virtual machine
             vm_service = self.get_vm_service(vm.id)
             vm_service.start()
-
+        
         if wait:
             # Wait till the virtual machine is UP:
             for vm in vms:
