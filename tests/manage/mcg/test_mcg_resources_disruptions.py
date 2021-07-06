@@ -29,6 +29,7 @@ def setup(request):
     request.cls.cl_obj = cluster.CephCluster()
 
 
+@skipif_openshift_dedicated
 @tier4
 @tier4a
 @ignore_leftovers()
