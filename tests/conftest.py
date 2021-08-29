@@ -202,7 +202,19 @@ def pytest_collection_modifyitems(session, items):
                     )
                     items.remove(item)
                     continue
-
+    # skip UI test on openshift dedicated ODF-MS platform
+    if (
+        config.ENV_DATA["platform"].lower() == constants.OPENSHIFT_DEDICATED_PLATFORM
+        and float(config.ENV_DATA["ocs_version"]) < 4.8
+    ):
+        for item in items.copy():
+            if "/ui/" in str(item.fspath):
+                log.info(
+                    f"Test {item} is removed from the collected items"
+                    f" UI is not supported on {config.ENV_DATA['platform'].lower()}"
+                    f" for OCS version ({config.ENV_DATA['ocs_version']}) being lower than 4.8"
+                )
+                items.remove(item)
 
 @pytest.fixture()
 def supported_configuration():
