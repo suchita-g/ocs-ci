@@ -808,3 +808,27 @@ def measure_noobaa_ns_target_bucket_deleted(
     ns_bucket[0].bucketclass.delete()
     ns_stores[0].delete()
     return measured_op
+
+def pytest_collection_modifyitems(items):
+    """
+    A pytest hook to skip certain tests when running on
+    openshift dedicated platform
+
+    Args:
+        items: list of collected tests
+
+    """
+    skip_list = [
+        "test_noobaa_bucket_quota",
+        "test_noobaa_ns_bucket",
+    ]
+    if config.ENV_DATA["platform"].lower() == constants.OPENSHIFT_DEDICATED_PLATFORM:
+        for item in items.copy():
+            for testname in skip_list:
+                if testname in str(item.fspath):
+                    logger.info(
+                        f"Test {item} is removed from the collected items"
+                        f" till node implentation is in place"
+                    )
+                    items.remove(item)
+                    break
