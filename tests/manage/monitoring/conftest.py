@@ -825,7 +825,7 @@ def pytest_collection_modifyitems(items):
     if config.ENV_DATA["platform"].lower() == constants.OPENSHIFT_DEDICATED_PLATFORM:
         for item in items.copy():
             for testname in skip_list:
-                if testname in str(item.fspath):
+                if testname in str(item):
                     logger.info(
                         f"Test {item} is removed from the collected items"
                         f" till node implentation is in place"

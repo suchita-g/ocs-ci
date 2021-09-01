@@ -181,7 +181,7 @@ def pytest_collection_modifyitems(items):
         items: list of collected tests
 
     """
-    #Skip the below test till node implementaion completed for ODF-MS platform
+    #Skip the below test till node implementation completed for ODF-MS platform
     skip_till_node_implement = [
         "test_rwo_pvc_fencing_node_short_network_failure",
         "test_rwo_pvc_fencing_node_prolonged_network_failure",
@@ -191,10 +191,10 @@ def pytest_collection_modifyitems(items):
     if config.ENV_DATA["platform"].lower() == constants.OPENSHIFT_DEDICATED_PLATFORM:
         for item in items.copy():
             for testname in skip_till_node_implement:
-                if testname in str(item.fspath):
+                if testname in str(item):
                     log.info(
                         f"Test {item} is removed from the collected items"
-                        f" till node implentation is in place"
+                        f" till node implementation is in place"
                     )
                     items.remove(item)
                     break
