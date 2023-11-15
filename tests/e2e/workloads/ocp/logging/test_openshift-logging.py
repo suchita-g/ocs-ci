@@ -14,7 +14,12 @@ from ocs_ci.ocs import constants
 from ocs_ci.ocs.resources.pod import get_all_pods, delete_deploymentconfig_pods
 from ocs_ci.utility.retry import retry
 from ocs_ci.framework import config
-from ocs_ci.framework.pytest_customization.marks import skipif_aws_i3, magenta_squad
+from ocs_ci.framework.pytest_customization.marks import (
+    skipif_aws_i3,
+    magenta_squad,
+    skipif_managed_service,
+    skipif_hci_provider_and_client,
+)
 from ocs_ci.framework.testlib import (
     E2ETest,
     workloads,
@@ -22,7 +27,7 @@ from ocs_ci.framework.testlib import (
     ignore_leftovers,
 )
 from ocs_ci.utility import deployment_openshift_logging as ocp_logging_obj
-from ocs_ci.framework.pytest_customization.marks import skipif_managed_service
+
 
 logger = logging.getLogger(__name__)
 
@@ -158,6 +163,7 @@ class Testopenshiftloggingonocs(E2ETest):
 
     @pytest.mark.polarion_id("OCS-657")
     @tier1
+    @skipif_hci_provider_and_client
     @skipif_managed_service
     def test_create_new_project_to_verify_logging(
         self, create_pvc_and_deploymentconfig_pod
