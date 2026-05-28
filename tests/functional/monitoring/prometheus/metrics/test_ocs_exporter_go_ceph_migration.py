@@ -20,9 +20,9 @@ import time
 
 from ocs_ci.framework import config
 from ocs_ci.framework.pytest_customization.marks import (
+    runs_on_provider,
     blue_squad,
     skipif_external_mode,
-    skipif_hci_client,
     skipif_managed_service,
     skipif_mcg_only,
     skipif_ms_consumer,
@@ -102,14 +102,13 @@ def metric_families(metrics_text):
     return families
 
 
+@runs_on_provider
 @pytest.mark.polarion_id("OCS-6002")
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
 def test_no_cli_spawning_in_logs(exporter_pod):
     """
     Test Case: ocs-tm002
@@ -204,14 +203,13 @@ def test_no_cli_spawning_in_logs(exporter_pod):
     )
 
 
+@runs_on_provider
 @pytest.mark.polarion_id("OCS-6003")
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
 def test_go_ceph_library_usage_in_logs(exporter_pod):
     """
     Test Case: ocs-tm003
@@ -302,14 +300,13 @@ def test_go_ceph_library_usage_in_logs(exporter_pod):
         )
 
 
+@runs_on_provider
 @pytest.mark.polarion_id("OCS-6004")
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
 def test_rbd_image_watcher_count_via_go_ceph(
     exporter_pod, ceph_toolbox_pod, metric_families
 ):
@@ -430,14 +427,13 @@ def test_rbd_image_watcher_count_via_go_ceph(
     )
 
 
+@runs_on_provider
 @pytest.mark.polarion_id("OCS-6005")
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
 def test_rbd_children_count_via_go_ceph(metric_families):
     """
     Test Case: ocs-tm005
@@ -520,14 +516,13 @@ def test_rbd_children_count_via_go_ceph(metric_families):
     )
 
 
+@runs_on_provider
 @pytest.mark.polarion_id("OCS-6006")
 @blue_squad
 @tier2  # Tier 2 because mirroring may not be enabled
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
 def test_ceph_blocklist_operations_via_go_ceph(metric_families, ceph_toolbox_pod):
     """
     Test Case: ocs-tm006

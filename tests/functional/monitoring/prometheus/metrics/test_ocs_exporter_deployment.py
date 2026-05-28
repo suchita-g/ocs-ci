@@ -18,14 +18,13 @@ import pytest
 
 from ocs_ci.framework import config
 from ocs_ci.framework.pytest_customization.marks import (
+    runs_on_provider,
     blue_squad,
     skipif_external_mode,
-    skipif_hci_client,
     skipif_mcg_only,
     skipif_ms_consumer,
     tier1,
 )
-from ocs_ci.framework.testlib import skipif_managed_service
 from ocs_ci.helpers import ocs_metrics_exporter_helpers as ome_helpers
 from ocs_ci.ocs import constants
 
@@ -34,11 +33,10 @@ logger = logging.getLogger(__name__)
 
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
+@runs_on_provider
 @pytest.mark.polarion_id("ocs-tm001")
 def test_exporter_pod_running():
     """
@@ -113,11 +111,10 @@ def test_exporter_pod_running():
 
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
+@runs_on_provider
 @pytest.mark.polarion_id("ocs-tm009")
 def test_kube_rbac_proxy_removed():
     """
@@ -224,11 +221,10 @@ def test_kube_rbac_proxy_removed():
 
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
+@runs_on_provider
 @pytest.mark.polarion_id("ocs-tm010")
 def test_readiness_endpoint_healthy():
     """

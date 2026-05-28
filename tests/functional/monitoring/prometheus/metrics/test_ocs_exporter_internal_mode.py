@@ -15,15 +15,14 @@ import pytest
 
 from ocs_ci.framework import config
 from ocs_ci.framework.pytest_customization.marks import (
+    runs_on_provider,
     blue_squad,
     skipif_external_mode,
-    skipif_hci_client,
     skipif_managed_service,
     skipif_mcg_only,
     skipif_ms_consumer,
     tier1,
 )
-from ocs_ci.framework.testlib import skipif_managed_service as skip_ms
 from ocs_ci.helpers import ocs_metrics_exporter_helpers as ome_helpers
 from ocs_ci.ocs import constants
 from ocs_ci.ocs.resources.pvc import create_pvc, delete_pvcs
@@ -97,14 +96,13 @@ def metric_families(metrics_text):
     return families
 
 
+@runs_on_provider
 @pytest.mark.polarion_id("OCS-6011")
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
 @pytest.mark.parametrize(
     "metric_name",
     [
@@ -165,14 +163,13 @@ def test_consumer_name_absent_in_internal_mode(metric_families, metric_name):
     )
 
 
+@runs_on_provider
 @pytest.mark.polarion_id("OCS-6012")
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
 def test_rados_namespace_in_internal_mode(metric_families):
     """
     Test Case: ocs-tm012
@@ -244,14 +241,13 @@ def test_rados_namespace_in_internal_mode(metric_families):
     )
 
 
+@runs_on_provider
 @pytest.mark.polarion_id("OCS-6013")
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
 @pytest.mark.parametrize(
     "metric_name,uses_storage_consumer_name",
     [

@@ -13,9 +13,9 @@ import logging
 import pytest
 
 from ocs_ci.framework.pytest_customization.marks import (
+    runs_on_provider,
     blue_squad,
     skipif_external_mode,
-    skipif_hci_client,
     skipif_managed_service,
     skipif_mcg_only,
     skipif_ms_consumer,
@@ -113,14 +113,13 @@ def prometheus_api():
     return PrometheusAPI()
 
 
+@runs_on_provider
 @pytest.mark.polarion_id("OCS-6032")
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
 def test_existing_metrics_preserved(metric_families):
     """
     Test Case: ocs-tm032
@@ -207,14 +206,13 @@ def test_existing_metrics_preserved(metric_families):
     )
 
 
+@runs_on_provider
 @pytest.mark.polarion_id("OCS-6033")
 @blue_squad
 @tier1
-@skipif_managed_service
 @skipif_external_mode
 @skipif_mcg_only
 @skipif_ms_consumer
-@skipif_hci_client
 def test_existing_alerts_functional(prometheus_api):
     """
     Test Case: ocs-tm033
