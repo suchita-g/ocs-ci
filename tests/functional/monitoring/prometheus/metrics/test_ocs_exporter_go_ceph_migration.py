@@ -23,7 +23,6 @@ from ocs_ci.framework.pytest_customization.marks import (
     runs_on_provider,
     blue_squad,
     skipif_external_mode,
-    skipif_managed_service,
     skipif_mcg_only,
     skipif_ms_consumer,
     tier1,
@@ -31,10 +30,7 @@ from ocs_ci.framework.pytest_customization.marks import (
 )
 from ocs_ci.helpers import ocs_metrics_exporter_helpers as ome_helpers
 from ocs_ci.ocs import constants
-from ocs_ci.ocs.resources.pod import get_ceph_tools_pod, Pod
-from ocs_ci.ocs.resources.pvc import create_pvc, delete_pvcs
-from ocs_ci.ocs.resources.pod import get_pod_obj
-from ocs_ci.utility.utils import TimeoutSampler
+from ocs_ci.ocs.resources.pod import get_ceph_tools_pod
 
 logger = logging.getLogger(__name__)
 

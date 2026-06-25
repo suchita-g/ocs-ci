@@ -864,6 +864,12 @@ NB_DB_CNPG_HEALTHY_STATUS = "Cluster in healthy state"
 NB_DB_CNPG_APP_SECRET = "noobaa-db-pg-cluster-app"
 CNPG_READ_ONLY_HOST = "noobaa-db-pg-cluster-ro"
 
+# OCS Metrics Exporter endpoint constants (RHSTOR-7964)
+OCS_METRICS_EXPORTER_HTTPS_PORT = 8443
+OCS_METRICS_EXPORTER_METRICS_PATH = "/metrics"
+OCS_METRICS_EXPORTER_READYZ_PATH = "/readyz"
+OCS_METRICS_EXPORTER_CEPH_AUTH_SECRET = "ocs-metrics-exporter-ceph-auth"  # pragma: allowlist secret
+
 # Auth Yaml
 OCSCI_DATA_BUCKET = "ocs-ci-data"
 AUTHYAML = "auth.yaml"
